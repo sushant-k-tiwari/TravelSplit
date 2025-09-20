@@ -1,35 +1,79 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import {
+  Briefcase01Icon,
+  Mailbox01Icon,
+  Money01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { Tabs } from "expo-router";
+import { StatusBar } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import "../../global.css";
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function RootLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+    <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar barStyle={"dark-content"} />
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: {
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            flex: 1,
+            justifyContent: "center",
+            // elevation: 0,
+            backgroundColor: "#fff",
+            borderTopWidth: 0,
+            marginBottom: -20,
+            height: 80,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            paddingHorizontal: 20,
+          },
+          tabBarActiveTintColor: "#38E07B",
+          tabBarInactiveTintColor: "#64748B",
         }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+        initialRouteName="index"
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Trips",
+            tabBarIcon: ({ focused }) => (
+              <HugeiconsIcon
+                icon={Briefcase01Icon}
+                color={focused ? "#38E07B" : "#64748B"}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="expenses"
+          options={{
+            title: "Expenses",
+            tabBarIcon: ({ focused }) => (
+              <HugeiconsIcon
+                icon={Money01Icon}
+                color={focused ? "#38E07B" : "#64748B"}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="summary"
+          options={{
+            title: "Summary",
+            tabBarIcon: ({ focused }) => (
+              <HugeiconsIcon
+                icon={Mailbox01Icon}
+                color={focused ? "#38E07B" : "#64748B"}
+              />
+            ),
+          }}
+        />
+      </Tabs>
+    </SafeAreaView>
   );
 }
