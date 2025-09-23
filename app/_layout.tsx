@@ -1,10 +1,15 @@
 import { Stack } from "expo-router";
+import { TripsProvider } from "./context/TripsContext";
 
 export default function RootLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="screens/NewTrip" />
-    </Stack>
+    <TripsProvider>
+      <Stack screenOptions={{ headerShown: false }} initialRouteName="screens/Welcome">
+        <Stack.Screen name="/screens/Welcome" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="screens/NewTrip" />
+        <Stack.Screen name="screens/AddExpense" />
+      </Stack>
+    </TripsProvider>
   );
 }
