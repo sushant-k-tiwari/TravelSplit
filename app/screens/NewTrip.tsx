@@ -10,15 +10,15 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTrips } from "../context/TripsContext";
 
-const defaultYou = { id: "you", name: "You" };
-
 const NewTrip = () => {
   const router = useRouter();
-  const { addTrip } = useTrips();
+  const { addTrip, userName } = useTrips();
 
   const [tripName, setTripName] = useState("");
   const [friendNameDraft, setFriendNameDraft] = useState("");
-  const [friends, setFriends] = useState([defaultYou]);
+  const [friends, setFriends] = useState([
+    { id: "you", name: userName || "You" },
+  ]);
 
   const canCreate = useMemo(
     () => tripName.trim().length > 0 && friends.length >= 1,
