@@ -11,8 +11,8 @@ export type Expense = {
   amount: number;
   currency: string;
   description: string;
-  paidByFriendId: string; // who paid
-  splitWithFriendIds: string[]; // participants
+  paidByFriendId: string;
+  splitWithFriendIds: string[]; // participants array
   createdAt: number;
 };
 
@@ -28,6 +28,8 @@ type TripsContextValue = {
   trips: Trip[];
   selectedTripId: string | null;
   selectedTrip: Trip | null;
+  userName: string;
+  setUserName: (name: string) => void;
   addTrip: (trip: Omit<Trip, "id" | "createdAt" | "expenses">) => string;
   selectTrip: (tripId: string | null) => void;
   addExpense: (
@@ -51,14 +53,29 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
 }) => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
+  const [userName, _setUserName] = useState<string>("You");
+
+  const setUserName = (name: string) => {
+    const finalName = name && name.trim().length > 0 ? name.trim() : "You";
+    _setUserName(finalName);
+    // Also update any existing trip where organizer id is "you"
+    setTrips((prev) =>
+      prev.map((trip) => ({
+        ...trip,
+        friends: trip.friends.map((friend) =>
+          friend.id === "you" ? { ...friend, name: finalName } : friend
+        ),
+      }))
+    );
+  };
 
   const addTrip: TripsContextValue["addTrip"] = (tripInput) => {
     const newTrip: Trip = {
       id: generateId(),
       name: tripInput.name.trim(),
-      friends: tripInput.friends.map((f) => ({
-        id: f.id || generateId(),
-        name: f.name,
+      friends: tripInput.friends.map((friend) => ({
+        id: friend.id || generateId(),
+        name: friend.name,
       })),
       expenses: [],
       createdAt: Date.now(),
@@ -75,35 +92,38 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
     expenseInput
   ) => {
     setTrips((prev) =>
-      prev.map((t) =>
-        t.id === tripId
+      prev.map((trip) =>
+        trip.id === tripId
           ? {
-              ...t,
+              ...trip,
               expenses: [
                 {
                   id: generateId(),
                   createdAt: Date.now(),
                   ...expenseInput,
                 },
-                ...t.expenses,
+                ...trip.expenses,
               ],
             }
-          : t
+          : trip
       )
     );
   };
 
   const value = useMemo<TripsContextValue>(() => {
-    const selectedTrip = trips.find((t) => t.id === selectedTripId) ?? null;
+    const selectedTrip =
+      trips.find((trip) => trip.id === selectedTripId) ?? null;
     return {
       trips,
       selectedTripId,
       selectedTrip,
+      userName,
+      setUserName,
       addTrip,
       selectTrip,
       addExpense,
     };
-  }, [trips, selectedTripId]);
+  }, [trips, selectedTripId, userName]);
 
   return (
     <TripsContext.Provider value={value}>{children}</TripsContext.Provider>
