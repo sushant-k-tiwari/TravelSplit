@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTrips } from "../context/TripsContext";
 
-const currencies = ["INR"]; // simple list
+const currencies = ["INR"]; // simple list will add other currencies later
 
 const AddExpense = () => {
   const router = useRouter();
@@ -62,100 +62,170 @@ const AddExpense = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
-        <Text className="text-center text-2xl font-bold mb-4">Add Expense</Text>
-
-        <Text className="font-semibold mb-1">Paid By</Text>
-        <View className="bg-[#E3F5EA] rounded-md px-3 py-4 mb-3">
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {selectedTrip.friends.map((f) => (
-              <TouchableOpacity
-                key={f.id}
-                onPress={() => setPaidById(f.id)}
-                className={`px-4 py-2 mr-2 rounded-md ${
-                  paidById === f.id ? "bg-[#38E07B]" : "bg-[#CFF7DD]"
-                }`}
-              >
-                <Text
-                  className={paidById === f.id ? "text-white" : "text-black"}
-                >
-                  {f.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+    <SafeAreaView className="flex-1 bg-gradient-to-b from-[#F8FFFE] to-white">
+      <ScrollView
+        contentContainerStyle={{ padding: 24 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View className="items-center mb-8">
+          <View className="bg-[#E3F5EA] rounded-full p-6 mb-4">
+            <Text className="text-4xl">💰</Text>
+          </View>
+          <Text className="text-3xl font-bold text-slate-800 mb-2">
+            Add Expense
+          </Text>
+          <Text className="text-slate-600 text-center">
+            Track and split your trip expenses
+          </Text>
         </View>
 
-        <View className="flex-row gap-3">
-          <TextInput
-            keyboardType="decimal-pad"
-            placeholder="₹ 0.00"
-            value={amount}
-            onChangeText={setAmount}
-            className="flex-1 p-4 bg-[#E3F5EA] rounded-md mb-3"
-          />
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="mb-3"
-          >
-            <View className="flex-row items-center">
-              {currencies.map((c) => (
+        {/* Paid By Section */}
+        <View className="mb-8">
+          <Text className="text-lg font-semibold text-slate-700 mb-4">
+            Who Paid?
+          </Text>
+          <View className="bg-white rounded-2xl p-4 shadow-sm border border-[#E3F5EA]">
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {selectedTrip.friends.map((friend) => (
                 <TouchableOpacity
-                  key={c}
-                  onPress={() => setCurrency(c)}
-                  className={`px-4 py-3 mr-2 rounded-md ${
-                    currency === c ? "bg-[#38E07B]" : "bg-[#CFF7DD]"
+                  key={friend.id}
+                  onPress={() => setPaidById(friend.id)}
+                  className={`mx-2 px-6 py-4 rounded-2xl border-2 ${
+                    paidById === friend.id
+                      ? "bg-[#38E07B] border-[#38E07B]"
+                      : "bg-white border-[#E3F5EA]"
                   }`}
                 >
                   <Text
-                    className={currency === c ? "text-white" : "text-black"}
+                    className={`text-lg font-semibold ${
+                      paidById === friend.id ? "text-white" : "text-slate-700"
+                    }`}
                   >
-                    {c}
+                    {friend.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+
+        {/* Amount and Currency */}
+        <View className="mb-8">
+          <Text className="text-lg font-semibold text-slate-700 mb-4">
+            Amount
+          </Text>
+          <View className="flex-row gap-4 mb-4">
+            <View className="flex-1 bg-white rounded-2xl p-1 shadow-sm border border-[#E3F5EA]">
+              <TextInput
+                keyboardType="decimal-pad"
+                placeholder="0.00"
+                placeholderTextColor="#94A3B8"
+                value={amount}
+                onChangeText={setAmount}
+                className="p-5 text-2xl font-bold text-slate-800"
+              />
+            </View>
+          </View>
+
+          {/* <Text className="text-lg font-semibold text-slate-700 mb-3">
+            Currency
+          </Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View className="flex-row">
+              {currencies.map((curr) => (
+                <TouchableOpacity
+                  key={curr}
+                  onPress={() => setCurrency(curr)}
+                  className={`mx-2 px-6 py-4 rounded-2xl border-2 ${
+                    currency === curr
+                      ? "bg-[#38E07B] border-[#38E07B]"
+                      : "bg-white border-[#E3F5EA]"
+                  }`}
+                >
+                  <Text
+                    className={`text-lg font-semibold ${
+                      currency === curr ? "text-white" : "text-slate-700"
+                    }`}
+                  >
+                    {curr}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
-          </ScrollView>
+          </ScrollView> */}
         </View>
 
-        <TextInput
-          placeholder="e.g. Dinner, Taxi, etc."
-          value={description}
-          onChangeText={setDescription}
-          className="p-4 bg-[#E3F5EA] rounded-md mb-4"
-        />
+        {/* Description */}
+        <View className="mb-8">
+          <Text className="text-lg font-semibold text-slate-700 mb-3">
+            Description
+          </Text>
+          <View className="bg-white rounded-2xl p-1 shadow-sm border border-[#E3F5EA]">
+            <TextInput
+              placeholder="e.g., Dinner, Taxi, Hotel..."
+              placeholderTextColor="#94A3B8"
+              value={description}
+              onChangeText={setDescription}
+              className="p-5 text-lg font-medium text-slate-800"
+            />
+          </View>
+        </View>
 
-        <Text className="text-xl font-bold mb-2">Split With</Text>
-        {selectedTrip.friends.map((f) => {
-          const selected = selectedIds.includes(f.id);
-          return (
-            <TouchableOpacity
-              key={f.id}
-              onPress={() => toggleParticipant(f.id)}
-              className={`flex-row justify-between items-center p-4 rounded-md mb-4 ${
-                selected ? "bg-[#CFF7DD]" : "bg-[#E3F5EA]"
-              }`}
-            >
-              <Text className="font-semibold text-lg">{f.name}</Text>
-              <View
-                className={`w-6 h-6 rounded-md border-2 ${
+        {/* Split With Section */}
+        <View className="mb-8">
+          <Text className="text-lg font-semibold text-slate-700 mb-4">
+            Split With
+          </Text>
+          {selectedTrip.friends.map((friend) => {
+            const selected = selectedIds.includes(friend.id);
+            return (
+              <TouchableOpacity
+                key={friend.id}
+                onPress={() => toggleParticipant(friend.id)}
+                className={`flex-row items-center justify-between p-5 rounded-2xl mb-3 border-2 ${
                   selected
-                    ? "bg-[#38E07B] border-[#38E07B]"
-                    : "border-[#82E8AB]"
+                    ? "bg-[#CFF7DD] border-[#38E07B]"
+                    : "bg-white border-[#E3F5EA]"
                 }`}
-              />
-            </TouchableOpacity>
-          );
-        })}
+              >
+                <View className="flex-row items-center">
+                  <View className="bg-[#E3F5EA] rounded-full p-3 mr-4">
+                    <Text className="text-[#38E07B] text-xl font-bold">👤</Text>
+                  </View>
+                  <Text className="font-bold text-lg text-slate-800">
+                    {friend.name}
+                  </Text>
+                </View>
+                <View
+                  className={`w-7 h-7 rounded-xl border-2 items-center justify-center ${
+                    selected
+                      ? "bg-[#38E07B] border-[#38E07B]"
+                      : "border-[#94A3B8]"
+                  }`}
+                >
+                  {selected && (
+                    <Text className="text-white font-bold text-lg">✓</Text>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
+        {/* Add Button */}
         <TouchableOpacity
           disabled={!canSave}
           onPress={onAdd}
-          className="bg-[#38E07B] p-4 rounded-md mt-4"
+          className={`p-6 rounded-2xl shadow-lg ${
+            canSave ? "bg-[#38E07B]" : "bg-gray-300"
+          }`}
         >
-          <Text className="text-center text-white font-semibold">
+          <Text
+            className={`text-center text-xl font-bold ${
+              canSave ? "text-white" : "text-gray-500"
+            }`}
+          >
             Add Expense
           </Text>
         </TouchableOpacity>
