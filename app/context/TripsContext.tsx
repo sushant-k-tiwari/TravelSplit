@@ -48,6 +48,7 @@ type TripsContextValue = {
   ) => void;
   toggleExpenseSettled: (tripId: string, expenseId: string) => void;
   loadData: () => Promise<void>;
+  clearAllData: () => Promise<void>;
 };
 
 const TripsContext = createContext<TripsContextValue | undefined>(undefined);
@@ -231,6 +232,25 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
     });
   };
 
+  const clearAllData: TripsContextValue["clearAllData"] = async () => {
+    try {
+      // Clear all data from AsyncStorage
+      await AsyncStorage.multiRemove([
+        STORAGE_KEYS.TRIPS,
+        STORAGE_KEYS.USER_NAME,
+        STORAGE_KEYS.SELECTED_TRIP,
+      ]);
+
+      // Reset all state
+      setTrips([]);
+      setSelectedTripId(null);
+      _setUserName("You");
+    } catch (error) {
+      console.error("Error clearing all data:", error);
+      throw error;
+    }
+  };
+
   const value = useMemo<TripsContextValue>(() => {
     const selectedTrip =
       trips.find((trip) => trip.id === selectedTripId) ?? null;
@@ -246,6 +266,7 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
       addExpense,
       toggleExpenseSettled,
       loadData,
+      clearAllData,
     };
   }, [
     trips,
@@ -258,9 +279,12 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
     addExpense,
     toggleExpenseSettled,
     loadData,
+    clearAllData,
   ]);
 
   return (
     <TripsContext.Provider value={value}>{children}</TripsContext.Provider>
   );
 };
+
+export default TripsProvider;
