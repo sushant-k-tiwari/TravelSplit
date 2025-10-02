@@ -54,6 +54,7 @@ const Welcome = () => {
           <Text className="text-xl font-semibold mb-4 text-slate-700 text-center">
             What&#39;s your name?
           </Text>
+
           <View className="bg-white rounded-2xl p-1 shadow-sm border border-[#E3F5EA]">
             <TextInput
               value={name}
