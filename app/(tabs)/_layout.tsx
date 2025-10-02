@@ -2,6 +2,7 @@ import {
   Briefcase01Icon,
   Mailbox01Icon,
   Money01Icon,
+  Profile02Icon
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { Tabs } from "expo-router";
@@ -74,6 +75,16 @@ export default function RootLayout() {
               ),
             }}
           />
+          <Tabs.Screen name="profile"
+          options={{
+            title: "Profile",
+            tabBarIcon: ({ focused }) => (
+              <HugeiconsIcon
+                icon={Profile02Icon}
+                color={focused ? "#38E07B" : "#64748B"}
+              />
+            ),
+          }} />
         </Tabs>
       </SafeAreaView>
     </SafeAreaProvider>
