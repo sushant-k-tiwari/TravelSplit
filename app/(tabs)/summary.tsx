@@ -136,13 +136,7 @@ const Summary = () => {
                     ? "bg-white border-[#28A745]"
                     : "bg-white border-[#DC3545]"
               }`}
-              // style={{
-              //   shadowColor: "#000",
-              //   shadowOffset: { width: 0, height: 2 },
-              //   shadowOpacity: 0.1,
-              //   shadowRadius: 8,
-              //   elevation: 3,
-              // }}
+              
             >
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
