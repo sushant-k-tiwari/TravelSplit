@@ -127,33 +127,6 @@ const AddExpense = () => {
               />
             </View>
           </View>
-
-          {/* <Text className="text-lg font-semibold text-slate-700 mb-3">
-            Currency
-          </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View className="flex-row">
-              {currencies.map((curr) => (
-                <TouchableOpacity
-                  key={curr}
-                  onPress={() => setCurrency(curr)}
-                  className={`mx-2 px-6 py-4 rounded-2xl border-2 ${
-                    currency === curr
-                      ? "bg-[#38E07B] border-[#38E07B]"
-                      : "bg-white border-[#E3F5EA]"
-                  }`}
-                >
-                  <Text
-                    className={`text-lg font-semibold ${
-                      currency === curr ? "text-white" : "text-slate-700"
-                    }`}
-                  >
-                    {curr}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView> */}
         </View>
 
         {/* Description */}
