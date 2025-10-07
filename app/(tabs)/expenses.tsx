@@ -4,7 +4,7 @@ import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTrips } from "../context/TripsContext";
 
-const expenses = () => {
+const Expenses = () => {
   const router = useRouter();
   const { selectedTrip } = useTrips();
 
@@ -113,4 +113,4 @@ const expenses = () => {
   );
 };
 
-export default expenses;
+export default Expenses;
