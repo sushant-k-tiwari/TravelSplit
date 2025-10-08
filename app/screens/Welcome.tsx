@@ -54,12 +54,12 @@ const Welcome = () => {
           <View className="flex-1 justify-center items-center px-6">
             {/* Header Section */}
             <View className="items-center mb-16">
-              <View className="bg-[#E3F5EA] rounded-full p-4 mb-8 shadow-sm">
+              <View className=" rounded-full p-4 mb-4">
                 <LottieView 
                 source={require("../../assets/animations/airplane.json")}
                 autoPlay
                 loop
-                style={{height:150, width: 150}}
+                style={{height:215, width: 215}}
                 />
               </View>
               <Text className="text-4xl font-bold text-slate-800 text-center mb-4">
