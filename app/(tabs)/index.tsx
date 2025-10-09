@@ -1,4 +1,11 @@
+import {
+  CheckmarkBadge04Icon,
+  Invoice01Icon,
+  UserGroup03Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
 import { useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
 import React from "react";
 import { Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,8 +21,14 @@ const Trips = () => {
         {trips.length === 0 ? (
           <View className="flex-1 items-center justify-center">
             <View className="items-center mb-12">
-              <View className="bg-[#E3F5EA] rounded-full p-8 mb-6">
-                <Text className="text-6xl">✈️</Text>
+              <View className="p-4 mb-6">
+                {/* added animation */}
+                <LottieView
+                  source={require("../../assets/animations/travel.json")}
+                  autoPlay
+                  loop
+                  style={{ height: 300, width: 300 }}
+                />
               </View>
               <Text className="text-2xl font-bold text-slate-800 mb-3">
                 No trips yet
@@ -85,17 +98,18 @@ const Trips = () => {
                       {item.name}
                     </Text>
                     {selectedTripId === item.id && (
-                      <View className="bg-[#38E07B] rounded-full px-3 py-1">
-                        <Text className="text-white text-sm font-semibold">
-                          Selected
-                        </Text>
+                      <View className=" px-3 py-1">
+                        <HugeiconsIcon
+                          icon={CheckmarkBadge04Icon}
+                          color={"#38E07B"}
+                        />
                       </View>
                     )}
                   </View>
 
                   <View className="flex-row items-center mb-3">
-                    <View className="bg-[#E3F5EA] rounded-full p-2 mr-3">
-                      <Text className="text-[#38E07B] font-bold">👥</Text>
+                    <View className="bg-[#E3F5EA] rounded-full p-3 mr-3">
+                      <HugeiconsIcon icon={UserGroup03Icon} />
                     </View>
                     <Text className="text-slate-600 font-medium">
                       {item.friends.length} friend
@@ -104,8 +118,8 @@ const Trips = () => {
                   </View>
 
                   <View className="flex-row items-center">
-                    <View className="bg-[#E3F5EA] rounded-full p-2 mr-3">
-                      <Text className="text-[#38E07B] font-bold">💰</Text>
+                    <View className="bg-[#E3F5EA] rounded-full p-3 mr-3">
+                      <HugeiconsIcon icon={Invoice01Icon} />
                     </View>
                     <Text className="text-slate-600 font-medium">
                       {item.expenses.length} expense

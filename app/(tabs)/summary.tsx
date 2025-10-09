@@ -1,4 +1,7 @@
+import { UserIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
 import { useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
 import React, { useMemo } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,16 +22,18 @@ const Summary = () => {
     });
 
     // Only process unsettled expenses
-    const unsettledExpenses = selectedTrip.expenses.filter((e) => !e.settled);
+    const unsettledExpenses = selectedTrip.expenses.filter(
+      (expense) => !expense.settled
+    );
 
-    for (const e of unsettledExpenses) {
-      const participants = e.splitWithFriendIds.length;
+    for (const expense of unsettledExpenses) {
+      const participants = expense.splitWithFriendIds.length;
       if (participants === 0) continue;
-      const share = e.amount / participants;
+      const share = expense.amount / participants;
 
       // payer pays amount; participants owe share
-      net[e.paidByFriendId] += e.amount;
-      for (const p of e.splitWithFriendIds) {
+      net[expense.paidByFriendId] += expense.amount;
+      for (const p of expense.splitWithFriendIds) {
         net[p] -= share;
       }
     }
@@ -41,8 +46,14 @@ const Summary = () => {
       <SafeAreaView className="flex-1 bg-gradient-to-b from-[#F8FFFE] to-white">
         <View className="flex-1 items-center justify-center p-6">
           <View className="items-center">
-            <View className="bg-[#E3F5EA] rounded-full p-8 mb-6">
-              <Text className="text-6xl">📊</Text>
+            <View className="p-4 mb-6">
+              {/* animation added */}
+              <LottieView
+                source={require("../../assets/animations/summary.json")}
+                autoPlay
+                loop
+                style={{ height: 300, width: 300 }}
+              />
             </View>
             <Text className="text-2xl font-bold text-slate-800 mb-3">
               No trip selected
@@ -56,9 +67,11 @@ const Summary = () => {
     );
   }
 
-  const unsettledExpenses = selectedTrip.expenses.filter((e) => !e.settled);
+  const unsettledExpenses = selectedTrip.expenses.filter(
+    (expense) => !expense.settled
+  );
   const totalUnsettled = unsettledExpenses.reduce(
-    (sum, e) => sum + e.amount,
+    (sum, expense) => sum + expense.amount,
     0
   );
 
@@ -70,9 +83,15 @@ const Summary = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View className="items-center mb-8">
-          <View className="bg-[#E3F5EA] rounded-full p-6 mb-4">
-            <Text className="text-4xl">📊</Text>
+        <View className="items-center mb-4">
+          <View className="p-4">
+            {/* animation added */}
+            <LottieView
+              source={require("../../assets/animations/summary.json")}
+              autoPlay
+              loop
+              style={{ height: 150, width: 150 }}
+            />
           </View>
           <Text className="text-3xl font-bold text-slate-800 mb-2">
             Expense Summary
@@ -88,11 +107,6 @@ const Summary = () => {
             <Text className="text-lg font-semibold text-slate-700">
               Trip Overview
             </Text>
-            {/* <View className="bg-[#38E07B] rounded-full px-4 py-2">
-              <Text className="text-white font-bold">
-                {unsettledExpenses.length} unsettled
-              </Text>
-            </View> */}
           </View>
           <View className="flex-row justify-between">
             <View className="items-center">
@@ -136,12 +150,11 @@ const Summary = () => {
                     ? "bg-white border-[#28A745]"
                     : "bg-white border-[#DC3545]"
               }`}
-              
             >
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <View
-                    className={`rounded-full p-3 mr-4 ${
+                    className={`rounded-full p-2 mr-4 ${
                       isSettled
                         ? "bg-[#38E07B]"
                         : isOwed
@@ -149,7 +162,7 @@ const Summary = () => {
                           : "bg-[#DC3545]"
                     }`}
                   >
-                    <Text className="text-white text-xl font-bold">👤</Text>
+                    <HugeiconsIcon icon={UserIcon} size={32} />
                   </View>
                   <View>
                     <Text className="font-bold text-xl text-slate-800">
