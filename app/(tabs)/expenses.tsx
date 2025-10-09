@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
 import React from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,8 +14,13 @@ const Expenses = () => {
       <SafeAreaView className="flex-1 bg-gradient-to-b from-[#F8FFFE] to-white">
         <View className="flex-1 items-center justify-center p-6">
           <View className="items-center">
-            <View className="bg-[#E3F5EA] rounded-full p-8 mb-6">
-              <Text className="text-6xl">💰</Text>
+            <View className="p-4 mb-6">
+              <LottieView
+                source={require("../../assets/animations/expense.json")}
+                autoPlay
+                loop
+                style={{ height: 300, width: 300 }}
+              />
             </View>
             <Text className="text-2xl font-bold text-slate-800 mb-3">
               No trip selected
@@ -58,8 +64,13 @@ const Expenses = () => {
         {/* Expenses List */}
         {selectedTrip.expenses.length === 0 ? (
           <View className="items-center justify-center py-12">
-            <View className="bg-[#E3F5EA] rounded-full p-8 mb-6">
-              <Text className="text-6xl">📝</Text>
+            <View className="p-4 mb-6">
+              <LottieView
+                source={require("../../assets/animations/expense.json")}
+                autoPlay
+                loop
+                style={{ height: 300, width: 300 }}
+              />
             </View>
             <Text className="text-xl font-bold text-slate-800 mb-3">
               No expenses yet

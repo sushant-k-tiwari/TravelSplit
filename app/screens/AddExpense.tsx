@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTrips } from "../context/TripsContext";
+import LottieView from "lottie-react-native";
 
 const currencies = ["INR"]; // simple list will add other currencies later
 
@@ -69,8 +70,13 @@ const AddExpense = () => {
       >
         {/* Header */}
         <View className="items-center mb-8">
-          <View className="bg-[#E3F5EA] rounded-full p-6 mb-4">
-            <Text className="text-4xl">💰</Text>
+          <View className="p-4">
+            <LottieView
+            source={require("../../assets/animations/expense.json")}
+            autoPlay
+            loop
+            style={{height:150, width:150}}
+            />
           </View>
           <Text className="text-3xl font-bold text-slate-800 mb-2">
             Add Expense
