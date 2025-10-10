@@ -1,3 +1,10 @@
+import {
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  Tick04Icon,
+  UserIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -224,7 +231,7 @@ const ParticipantSummary = () => {
         {/* Header */}
         <View className="items-center mb-8">
           <View className="bg-[#E3F5EA] rounded-full p-6 mb-4">
-            <Text className="text-4xl">👤</Text>
+            <HugeiconsIcon icon={UserIcon} size={80} />
           </View>
           <Text className="text-3xl font-bold text-slate-800 mb-2">
             {participant.name}
@@ -243,13 +250,6 @@ const ParticipantSummary = () => {
                 ? "bg-white border-[#28A745]"
                 : "bg-white border-[#DC3545]"
           }`}
-          // style={{
-          //   shadowColor: "#000",
-          //   shadowOffset: { width: 0, height: 2 },
-          //   shadowOpacity: 0.1,
-          //   shadowRadius: 8,
-          //   elevation: 3,
-          // }}
         >
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-row items-center">
@@ -262,7 +262,7 @@ const ParticipantSummary = () => {
                       : "bg-[#DC3545]"
                 }`}
               >
-                <Text className="text-white text-xl font-bold">👤</Text>
+                <HugeiconsIcon icon={UserIcon} size={32} />
               </View>
               <View>
                 <Text className="font-bold text-xl text-slate-800">
@@ -314,12 +314,16 @@ const ParticipantSummary = () => {
                   <View className="flex-row justify-between items-center">
                     <View className="flex-row items-center flex-1">
                       <View
-                        className={`rounded-full p-2 size-12 mr-3 ${
+                        className={`rounded-full p-2 size-12 mr-3 flex justify-center items-center ${
                           isSettled ? "bg-green-500" : "bg-[#DC3545]"
                         }`}
                       >
                         <Text className="text-white text-lg font-bold text-center">
-                          {isSettled ? "✓" : "→"}
+                          {isSettled ? (
+                            <HugeiconsIcon icon={Tick04Icon} color={"white"} />
+                          ) : (
+                            <HugeiconsIcon icon={ArrowLeft01Icon} />
+                          )}
                         </Text>
                       </View>
                       <View className="flex-1">
@@ -372,12 +376,16 @@ const ParticipantSummary = () => {
                   <View className="flex-row justify-between items-center">
                     <View className="flex-row items-center flex-1">
                       <View
-                        className={`rounded-full p-2 size-12 mr-3 ${
+                        className={`rounded-full p-2 size-12 mr-3 flex items-center justify-center ${
                           isReceived ? "bg-green-500" : "bg-[#28A745]"
                         }`}
                       >
                         <Text className="text-white text-lg font-bold text-center">
-                          {isReceived ? "✓" : "←"}
+                          {isReceived ? (
+                            <HugeiconsIcon icon={Tick04Icon} color={"white"} />
+                          ) : (
+                            <HugeiconsIcon icon={ArrowRight01Icon} />
+                          )}
                         </Text>
                       </View>
                       <View className="flex-1">
@@ -415,53 +423,6 @@ const ParticipantSummary = () => {
             </Text>
           </View>
         )}
-
-        {/* Unsettled Expenses */}
-        {/* {unsettledExpenses.length > 0 && (
-          <>
-            <Text className="text-xl font-bold text-slate-800 mb-4">
-              Unsettled Expenses
-            </Text>
-            {unsettledExpenses.map((expense) => (
-              <View
-                key={expense.id}
-                className="bg-white rounded-2xl p-6 mb-4 shadow-sm border border-[#E3F5EA]"
-              >
-                <View className="flex-row justify-between items-start mb-3">
-                  <Text className="font-bold text-lg text-slate-800 flex-1">
-                    {expense.description}
-                  </Text>
-                  <Text className="font-bold text-xl text-slate-800">
-                    ₹{expense.amount.toFixed(2)}
-                  </Text>
-                </View>
-                <View className="flex-row justify-between items-center mb-4">
-                  <Text className="text-slate-600">
-                    Paid by{" "}
-                    <Text className="font-semibold text-slate-700">
-                      {selectedTrip.friends.find(
-                        (f) => f.id === expense.paidByFriendId
-                      )?.name ?? ""}
-                    </Text>
-                  </Text>
-                  <Text className="text-slate-600">
-                    Split with {expense.splitWithFriendIds.length}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() =>
-                    toggleExpenseSettled(selectedTrip.id, expense.id)
-                  }
-                  className="bg-[#38E07B] p-3 rounded-xl"
-                >
-                  <Text className="text-white font-semibold text-center">
-                    Mark as Settled
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </>
-        )} */}
       </ScrollView>
 
       {/* Custom Toast */}

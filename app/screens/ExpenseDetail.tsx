@@ -91,7 +91,6 @@ const ExpenseDetail = () => {
               <View className="bg-[#CFF7DD] rounded-2xl p-5 border border-[#38E07B]">
                 <View className="flex-row items-center">
                   <View className="bg-[#38E07B] rounded-full p-3 mr-4">
-                    {/* <Text className="text-white text-xl font-bold">👤</Text> */}
                     <HugeiconsIcon icon={UserIcon} size={32}/>
                   </View>
                   <View className="flex-1">

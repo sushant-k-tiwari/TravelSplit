@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTrips } from "../context/TripsContext";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { UserIcon } from "@hugeicons/core-free-icons";
 
 // const currencies = ["INR"]; // simple list will add other currencies later
 
@@ -197,7 +199,7 @@ const AddExpense = () => {
               >
                 <View className="flex-row items-center">
                   <View className="bg-[#E3F5EA] rounded-full p-3 mr-4">
-                    <Text className="text-[#38E07B] text-xl font-bold">👤</Text>
+                    <HugeiconsIcon icon={UserIcon} size={32} />
                   </View>
                   <Text className="font-bold text-lg text-slate-800">
                     {friend.name}
