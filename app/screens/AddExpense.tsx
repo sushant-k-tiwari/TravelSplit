@@ -1,5 +1,6 @@
-import { useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ScrollView,
   Text,
@@ -9,13 +10,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTrips } from "../context/TripsContext";
-import LottieView from "lottie-react-native";
 
-const currencies = ["INR"]; // simple list will add other currencies later
+// const currencies = ["INR"]; // simple list will add other currencies later
 
 const AddExpense = () => {
   const router = useRouter();
-  const { selectedTrip, addExpense } = useTrips();
+  const { editExpenseId } = useLocalSearchParams();
+  const { selectedTrip, addExpense, editExpense } = useTrips();
 
   const [paidById, setPaidById] = useState<string | null>(
     selectedTrip?.friends[0]?.id ?? null
@@ -26,6 +27,22 @@ const AddExpense = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>(
     selectedTrip ? selectedTrip.friends.map((f) => f.id) : []
   );
+
+  const isEditMode = Boolean(editExpenseId);
+  const expenseToEdit = selectedTrip?.expenses.find(
+    (expense) => expense.id === editExpenseId
+  );
+
+  // Initialize form with expense data if in edit mode
+  useEffect(() => {
+    if (isEditMode && expenseToEdit) {
+      setPaidById(expenseToEdit.paidByFriendId);
+      setAmount(expenseToEdit.amount.toString());
+      setCurrency(expenseToEdit.currency);
+      setDescription(expenseToEdit.description);
+      setSelectedIds(expenseToEdit.splitWithFriendIds);
+    }
+  }, [isEditMode, expenseToEdit]);
 
   const canSave = useMemo(() => {
     const a = parseFloat(amount);
@@ -51,14 +68,22 @@ const AddExpense = () => {
   };
 
   const onAdd = () => {
-    if (!canSave || !paidById) return;
-    addExpense(selectedTrip.id, {
+    if (!canSave || !paidById || !selectedTrip) return;
+
+    const expenseData = {
       amount: parseFloat(amount),
       currency,
       description: description.trim(),
       paidByFriendId: paidById,
       splitWithFriendIds: selectedIds,
-    });
+    };
+
+    if (isEditMode && editExpenseId) {
+      editExpense(selectedTrip.id, editExpenseId as string, expenseData);
+    } else {
+      addExpense(selectedTrip.id, expenseData);
+    }
+
     router.back();
   };
 
@@ -72,17 +97,19 @@ const AddExpense = () => {
         <View className="items-center mb-8">
           <View className="p-4">
             <LottieView
-            source={require("../../assets/animations/expense.json")}
-            autoPlay
-            loop
-            style={{height:150, width:150}}
+              source={require("../../assets/animations/expense.json")}
+              autoPlay
+              loop
+              style={{ height: 150, width: 150 }}
             />
           </View>
           <Text className="text-3xl font-bold text-slate-800 mb-2">
-            Add Expense
+            {isEditMode ? "Edit Expense" : "Add Expense"}
           </Text>
           <Text className="text-slate-600 text-center">
-            Track and split your trip expenses
+            {isEditMode
+              ? "Update your expense details"
+              : "Track and split your trip expenses"}
           </Text>
         </View>
 
@@ -205,7 +232,7 @@ const AddExpense = () => {
               canSave ? "text-white" : "text-gray-500"
             }`}
           >
-            Add Expense
+            {isEditMode ? "Update Expense" : "Add Expense"}
           </Text>
         </TouchableOpacity>
       </ScrollView>
