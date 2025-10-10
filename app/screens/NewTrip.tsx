@@ -1,8 +1,12 @@
-import { AddCircleHalfDotIcon, UserIcon } from "@hugeicons/core-free-icons";
+import {
+  AddCircleHalfDotIcon,
+  Delete02Icon,
+  UserIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Keyboard,
   Text,
@@ -17,13 +21,25 @@ import { useTrips } from "../context/TripsContext";
 
 const NewTrip = () => {
   const router = useRouter();
-  const { addTrip, userName } = useTrips();
+  const { editTripId } = useLocalSearchParams();
+  const { addTrip, editTrip, userName, trips } = useTrips();
 
   const [tripName, setTripName] = useState("");
   const [friendNameDraft, setFriendNameDraft] = useState("");
   const [friends, setFriends] = useState([
     { id: "you", name: userName || "You" },
   ]);
+
+  const isEditMode = Boolean(editTripId);
+  const tripToEdit = trips.find((trip) => trip.id === editTripId);
+
+  // initializing trip form with trip data if editing trip details
+  useEffect(() => {
+    if (isEditMode && tripToEdit) {
+      setTripName(tripToEdit.name);
+      setFriends(tripToEdit.friends);
+    }
+  }, [isEditMode, tripToEdit]);
 
   const canCreate = useMemo(
     () => tripName.trim().length > 0 && friends.length >= 1,
@@ -41,9 +57,21 @@ const NewTrip = () => {
     Keyboard.dismiss();
   };
 
+  const removeFriend = (friendId: string) => {
+    // avoid deleting the organizer
+    if (friendId === "you") return;
+    setFriends((prev) => prev.filter((friend) => friend.id !== friendId));
+  };
+
   const onCreate = () => {
     if (!canCreate) return;
-    addTrip({ name: tripName, friends });
+
+    if (isEditMode && editTripId) {
+      editTrip(editTripId as string, { name: tripName, friends });
+    } else {
+      addTrip({ name: tripName, friends });
+    }
+
     router.back();
   };
 
@@ -68,10 +96,12 @@ const NewTrip = () => {
               />
             </View>
             <Text className="text-3xl font-bold text-slate-800 mb-2">
-              Create New Trip
+              {isEditMode ? "Edit Trip" : "Create New Trip"}
             </Text>
             <Text className="text-slate-600 text-center">
-              Plan your next adventure with friends
+              {isEditMode
+                ? "Update your trip details"
+                : "Plan your next adventure with friends"}
             </Text>
           </View>
 
@@ -126,6 +156,17 @@ const NewTrip = () => {
                     </Text>
                     <Text className="text-slate-600 font-medium">Member</Text>
                   </View>
+                  {/* delete participant feature added */}
+                  <TouchableOpacity
+                    onPress={() => removeFriend(friend.id)}
+                    className="bg-red-100 rounded-full p-2"
+                  >
+                    <HugeiconsIcon
+                      icon={Delete02Icon}
+                      color="#EF4444"
+                      size={20}
+                    />
+                  </TouchableOpacity>
                 </View>
               </View>
             ))}
@@ -179,7 +220,7 @@ const NewTrip = () => {
                 canCreate ? "text-white" : "text-gray-500"
               }`}
             >
-              Create Trip
+              {isEditMode ? "Update Trip" : "Create Trip"}
             </Text>
           </TouchableOpacity>
         </KeyboardAwareScrollView>
