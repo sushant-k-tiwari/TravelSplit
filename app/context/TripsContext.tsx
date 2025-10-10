@@ -40,10 +40,19 @@ type TripsContextValue = {
   userName: string;
   setUserName: (name: string) => void;
   addTrip: (trip: Omit<Trip, "id" | "createdAt" | "expenses">) => string;
+  editTrip: (
+    tripId: string,
+    trip: Omit<Trip, "id" | "createdAt" | "expenses">
+  ) => void;
   deleteTrip: (tripId: string) => void;
   selectTrip: (tripId: string | null) => void;
   addExpense: (
     tripId: string,
+    expense: Omit<Expense, "id" | "createdAt" | "settled">
+  ) => void;
+  editExpense: (
+    tripId: string,
+    expenseId: string,
     expense: Omit<Expense, "id" | "createdAt" | "settled">
   ) => void;
   toggleExpenseSettled: (tripId: string, expenseId: string) => void;
@@ -167,6 +176,25 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
     return newTrip.id;
   };
 
+  const editTrip: TripsContextValue["editTrip"] = (tripId, tripInput) => {
+    setTrips((prev) => {
+      const updatedTrips = prev.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              name: tripInput.name.trim(),
+              friends: tripInput.friends.map((friend) => ({
+                id: friend.id || generateId(),
+                name: friend.name,
+              })),
+            }
+          : trip
+      );
+      saveTrips(updatedTrips);
+      return updatedTrips;
+    });
+  };
+
   const selectTrip = (tripId: string | null) => {
     setSelectedTripId(tripId);
     saveSelectedTrip(tripId);
@@ -190,6 +218,32 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
                 },
                 ...trip.expenses,
               ],
+            }
+          : trip
+      );
+      saveTrips(updatedTrips);
+      return updatedTrips;
+    });
+  };
+
+  const editExpense: TripsContextValue["editExpense"] = (
+    tripId,
+    expenseId,
+    expenseInput
+  ) => {
+    setTrips((prev) => {
+      const updatedTrips = prev.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              expenses: trip.expenses.map((expense) =>
+                expense.id === expenseId
+                  ? {
+                      ...expense,
+                      ...expenseInput,
+                    }
+                  : expense
+              ),
             }
           : trip
       );
@@ -261,9 +315,11 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
       userName,
       setUserName,
       addTrip,
+      editTrip,
       deleteTrip,
       selectTrip,
       addExpense,
+      editExpense,
       toggleExpenseSettled,
       loadData,
       clearAllData,
@@ -274,9 +330,11 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
     userName,
     setUserName,
     addTrip,
+    editTrip,
     deleteTrip,
     selectTrip,
     addExpense,
+    editExpense,
     toggleExpenseSettled,
     loadData,
     clearAllData,
