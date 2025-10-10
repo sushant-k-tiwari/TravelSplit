@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  useCallback,
 } from "react";
 import { uid } from "uid";
 // @ts-ignore
@@ -83,12 +84,7 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [userName, _setUserName] = useState<string>("You");
 
-  // Load data from AsyncStorage on app start
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [tripsData, userNameData, selectedTripData] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEYS.TRIPS),
@@ -108,25 +104,30 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
     } catch (error) {
       console.error("Error loading data:", error);
     }
-  };
+  }, []);
 
-  const saveTrips = async (newTrips: Trip[]) => {
+  // Load data from AsyncStorage on app start
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const saveTrips = useCallback(async (newTrips: Trip[]) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.TRIPS, JSON.stringify(newTrips));
     } catch (error) {
       console.error("Error saving trips:", error);
     }
-  };
+  }, []);
 
-  const saveUserName = async (name: string) => {
+  const saveUserName = useCallback(async (name: string) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.USER_NAME, name);
     } catch (error) {
       console.error("Error saving user name:", error);
     }
-  };
+  }, []);
 
-  const saveSelectedTrip = async (tripId: string | null) => {
+  const saveSelectedTrip = useCallback(async (tripId: string | null) => {
     try {
       if (tripId) {
         await AsyncStorage.setItem(STORAGE_KEYS.SELECTED_TRIP, tripId);
@@ -136,157 +137,178 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
     } catch (error) {
       console.error("Error saving selected trip:", error);
     }
-  };
+  }, []);
 
-  const setUserName = (name: string) => {
-    const finalName = name && name.trim().length > 0 ? name.trim() : "You";
-    _setUserName(finalName);
-    saveUserName(finalName);
-    // Also update any existing trip where organizer id is "you"
-    setTrips((prev) => {
-      const updatedTrips = prev.map((trip) => ({
-        ...trip,
-        friends: trip.friends.map((friend) =>
-          friend.id === "you" ? { ...friend, name: finalName } : friend
-        ),
-      }));
-      saveTrips(updatedTrips);
-      return updatedTrips;
-    });
-  };
+  const setUserName = useCallback(
+    (name: string) => {
+      const finalName = name && name.trim().length > 0 ? name.trim() : "You";
+      _setUserName(finalName);
+      saveUserName(finalName);
+      // Also update any existing trip where organizer id is "you"
+      setTrips((prev) => {
+        const updatedTrips = prev.map((trip) => ({
+          ...trip,
+          friends: trip.friends.map((friend) =>
+            friend.id === "you" ? { ...friend, name: finalName } : friend
+          ),
+        }));
+        saveTrips(updatedTrips);
+        return updatedTrips;
+      });
+    },
+    [saveUserName, setTrips, _setUserName, saveTrips]
+  );
 
-  const addTrip: TripsContextValue["addTrip"] = (tripInput) => {
-    const newTrip: Trip = {
-      id: generateId(),
-      name: tripInput.name.trim(),
-      friends: tripInput.friends.map((friend) => ({
-        id: friend.id || generateId(),
-        name: friend.name,
-      })),
-      expenses: [],
-      createdAt: Date.now(),
-    };
-    setTrips((prev) => {
-      const updatedTrips = [newTrip, ...prev];
-      saveTrips(updatedTrips);
-      return updatedTrips;
-    });
-    setSelectedTripId(newTrip.id);
-    saveSelectedTrip(newTrip.id);
-    return newTrip.id;
-  };
+  const addTrip: TripsContextValue["addTrip"] = useCallback(
+    (tripInput) => {
+      const newTrip: Trip = {
+        id: generateId(),
+        name: tripInput.name.trim(),
+        friends: tripInput.friends.map((friend) => ({
+          id: friend.id || generateId(),
+          name: friend.name,
+        })),
+        expenses: [],
+        createdAt: Date.now(),
+      };
+      setTrips((prev) => {
+        const updatedTrips = [newTrip, ...prev];
+        saveTrips(updatedTrips);
+        return updatedTrips;
+      });
+      setSelectedTripId(newTrip.id);
+      saveSelectedTrip(newTrip.id);
+      return newTrip.id;
+    },
+    [setTrips, saveTrips, setSelectedTripId, saveSelectedTrip]
+  );
 
-  const editTrip: TripsContextValue["editTrip"] = (tripId, tripInput) => {
-    setTrips((prev) => {
-      const updatedTrips = prev.map((trip) =>
-        trip.id === tripId
-          ? {
-              ...trip,
-              name: tripInput.name.trim(),
-              friends: tripInput.friends.map((friend) => ({
-                id: friend.id || generateId(),
-                name: friend.name,
-              })),
-            }
-          : trip
-      );
-      saveTrips(updatedTrips);
-      return updatedTrips;
-    });
-  };
+  const editTrip: TripsContextValue["editTrip"] = useCallback(
+    (tripId, tripInput) => {
+      setTrips((prev) => {
+        const updatedTrips = prev.map((trip) =>
+          trip.id === tripId
+            ? {
+                ...trip,
+                name: tripInput.name.trim(),
+                friends: tripInput.friends.map((friend) => ({
+                  id: friend.id || generateId(),
+                  name: friend.name,
+                })),
+              }
+            : trip
+        );
+        saveTrips(updatedTrips);
+        return updatedTrips;
+      });
+    },
+    [setTrips, saveTrips]
+  );
 
-  const selectTrip = (tripId: string | null) => {
+  const selectTrip = useCallback((tripId: string | null) => {
     setSelectedTripId(tripId);
     saveSelectedTrip(tripId);
-  };
+  }, [setSelectedTripId, saveSelectedTrip]);
 
-  const addExpense: TripsContextValue["addExpense"] = (
-    tripId,
-    expenseInput
-  ) => {
-    setTrips((prev) => {
-      const updatedTrips = prev.map((trip) =>
-        trip.id === tripId
-          ? {
-              ...trip,
-              expenses: [
-                {
-                  id: generateId(),
-                  createdAt: Date.now(),
-                  settled: false,
-                  ...expenseInput,
-                },
-                ...trip.expenses,
-              ],
-            }
-          : trip
-      );
-      saveTrips(updatedTrips);
-      return updatedTrips;
-    });
-  };
+  const addExpense: TripsContextValue["addExpense"] = useCallback(
+    (
+      tripId,
+      expenseInput
+    ) => {
+      setTrips((prev) => {
+        const updatedTrips = prev.map((trip) =>
+          trip.id === tripId
+            ? {
+                ...trip,
+                expenses: [
+                  {
+                    id: generateId(),
+                    createdAt: Date.now(),
+                    settled: false,
+                    ...expenseInput,
+                  },
+                  ...trip.expenses,
+                ],
+              }
+            : trip
+        );
+        saveTrips(updatedTrips);
+        return updatedTrips;
+      });
+    },
+    [setTrips, saveTrips]
+  );
 
-  const editExpense: TripsContextValue["editExpense"] = (
-    tripId,
-    expenseId,
-    expenseInput
-  ) => {
-    setTrips((prev) => {
-      const updatedTrips = prev.map((trip) =>
-        trip.id === tripId
-          ? {
-              ...trip,
-              expenses: trip.expenses.map((expense) =>
-                expense.id === expenseId
-                  ? {
-                      ...expense,
-                      ...expenseInput,
-                    }
-                  : expense
-              ),
-            }
-          : trip
-      );
-      saveTrips(updatedTrips);
-      return updatedTrips;
-    });
-  };
+  const editExpense: TripsContextValue["editExpense"] = useCallback(
+    (
+      tripId,
+      expenseId,
+      expenseInput
+    ) => {
+      setTrips((prev) => {
+        const updatedTrips = prev.map((trip) =>
+          trip.id === tripId
+            ? {
+                ...trip,
+                expenses: trip.expenses.map((expense) =>
+                  expense.id === expenseId
+                    ? {
+                        ...expense,
+                        ...expenseInput,
+                      }
+                    : expense
+                ),
+              }
+            : trip
+        );
+        saveTrips(updatedTrips);
+        return updatedTrips;
+      });
+    },
+    [setTrips, saveTrips]
+  );
 
-  const deleteTrip: TripsContextValue["deleteTrip"] = (tripId) => {
-    setTrips((prev) => {
-      const updatedTrips = prev.filter((trip) => trip.id !== tripId);
-      saveTrips(updatedTrips);
-      return updatedTrips;
-    });
-    if (selectedTripId === tripId) {
-      setSelectedTripId(null);
-      saveSelectedTrip(null);
-    }
-  };
+  const deleteTrip: TripsContextValue["deleteTrip"] = useCallback(
+    (tripId) => {
+      setTrips((prev) => {
+        const updatedTrips = prev.filter((trip) => trip.id !== tripId);
+        saveTrips(updatedTrips);
+        return updatedTrips;
+      });
+      if (selectedTripId === tripId) {
+        setSelectedTripId(null);
+        saveSelectedTrip(null);
+      }
+    },
+    [selectedTripId, setTrips, saveTrips, setSelectedTripId, saveSelectedTrip]
+  );
 
-  const toggleExpenseSettled: TripsContextValue["toggleExpenseSettled"] = (
-    tripId,
-    expenseId
-  ) => {
-    setTrips((prev) => {
-      const updatedTrips = prev.map((trip) =>
-        trip.id === tripId
-          ? {
-              ...trip,
-              expenses: trip.expenses.map((expense) =>
-                expense.id === expenseId
-                  ? { ...expense, settled: !expense.settled }
-                  : expense
-              ),
-            }
-          : trip
-      );
-      saveTrips(updatedTrips);
-      return updatedTrips;
-    });
-  };
+  const toggleExpenseSettled: TripsContextValue["toggleExpenseSettled"] = useCallback(
+    (
+      tripId,
+      expenseId
+    ) => {
+      setTrips((prev) => {
+        const updatedTrips = prev.map((trip) =>
+          trip.id === tripId
+            ? {
+                ...trip,
+                expenses: trip.expenses.map((expense) =>
+                  expense.id === expenseId
+                    ? { ...expense, settled: !expense.settled }
+                    : expense
+                ),
+              }
+            : trip
+        );
+        saveTrips(updatedTrips);
+        return updatedTrips;
+      });
+    },
+    [setTrips, saveTrips]
+  );
 
-  const clearAllData: TripsContextValue["clearAllData"] = async () => {
+  const clearAllData: TripsContextValue["clearAllData"] = useCallback(async () => {
     try {
       // Clear all data from AsyncStorage
       await AsyncStorage.multiRemove([
@@ -303,7 +325,7 @@ export const TripsProvider: React.FC<React.PropsWithChildren> = ({
       console.error("Error clearing all data:", error);
       throw error;
     }
-  };
+  }, []);
 
   const value = useMemo<TripsContextValue>(() => {
     const selectedTrip =
