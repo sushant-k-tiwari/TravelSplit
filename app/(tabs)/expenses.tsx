@@ -1,3 +1,5 @@
+import { Edit02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
 import { useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
 import React from "react";
@@ -85,14 +87,40 @@ const Expenses = () => {
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
-              <View className="bg-white rounded-2xl p-6 mb-4 shadow-sm border border-[#E3F5EA]">
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/screens/ExpenseDetail",
+                    params: { expenseId: item.id },
+                  })
+                }
+                className="bg-white rounded-2xl p-6 mb-4 shadow-sm border border-[#E3F5EA]"
+              >
                 <View className="flex-row justify-between items-start mb-3">
                   <Text className="font-bold text-lg text-slate-800 flex-1">
                     {item.description}
                   </Text>
-                  <Text className="font-bold text-xl text-slate-800">
-                    ₹{item.amount.toFixed(2)}
-                  </Text>
+                  <View className="flex-row items-center gap-4">
+                    <Text className="font-bold text-xl text-slate-800">
+                      ₹{item.amount.toFixed(2)}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        router.push({
+                          pathname: "/screens/AddExpense",
+                          params: { editExpenseId: item.id },
+                        });
+                      }}
+                      className="bg-[#38E07B] rounded-full p-2 mr-2"
+                    >
+                      <HugeiconsIcon
+                        icon={Edit02Icon}
+                        color={"white"}
+                        size={20}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
                 <View className="flex-row justify-between items-center">
                   <Text className="text-slate-600">
@@ -102,10 +130,10 @@ const Expenses = () => {
                     </Text>
                   </Text>
                   <Text className="text-slate-600">
-                    Split with {item.splitWithFriendIds.length}
+                    Split with {item.splitWithFriendIds.length} friends
                   </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             )}
           />
         )}
