@@ -4,12 +4,13 @@ import { useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
 import React from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTrips } from "../context/TripsContext";
 
 const Expenses = () => {
   const router = useRouter();
   const { selectedTrip } = useTrips();
+  const insets = useSafeAreaInsets();
 
   if (!selectedTrip) {
     return (
@@ -49,7 +50,7 @@ const Expenses = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-gradient-to-b from-[#F8FFFE] to-white">
-      <View className="p-6">
+      <View className="flex-1 p-6">
         {/* Header */}
         <View className="mb-6">
           <Text className="text-3xl font-bold text-slate-800 mb-2">
@@ -83,9 +84,11 @@ const Expenses = () => {
           </View>
         ) : (
           <FlatList
+            alwaysBounceVertical
             data={selectedTrip.expenses}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: insets.bottom }}
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() =>
@@ -142,6 +145,7 @@ const Expenses = () => {
         <TouchableOpacity
           className="bg-[#38E07B] p-6 rounded-2xl shadow-lg"
           onPress={() => router.push("/screens/AddExpense")}
+          style={{ marginBottom: insets.bottom }}
         >
           <Text className="text-center text-white font-bold text-xl">
             + Add Expense
