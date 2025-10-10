@@ -1,5 +1,6 @@
 import {
   CheckmarkBadge04Icon,
+  Edit02Icon,
   Invoice01Icon,
   UserGroup03Icon,
 } from "@hugeicons/core-free-icons";
@@ -97,14 +98,33 @@ const Trips = () => {
                     <Text className="font-bold text-xl text-slate-800 flex-1">
                       {item.name}
                     </Text>
-                    {selectedTripId === item.id && (
-                      <View className=" px-3 py-1">
+                    {/* added edit button */}
+                    <View className="flex-row items-center">
+                      <TouchableOpacity
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          router.push({
+                            pathname: "/screens/NewTrip",
+                            params: { editTripId: item.id },
+                          });
+                        }}
+                        className="bg-[#38E07B] rounded-full p-2 mr-2"
+                      >
                         <HugeiconsIcon
-                          icon={CheckmarkBadge04Icon}
-                          color={"#38E07B"}
+                          icon={Edit02Icon}
+                          color={"white"}
+                          size={20}
                         />
-                      </View>
-                    )}
+                      </TouchableOpacity>
+                      {selectedTripId === item.id && (
+                        <View className=" px-3 py-1">
+                          <HugeiconsIcon
+                            icon={CheckmarkBadge04Icon}
+                            color={"#38E07B"}
+                          />
+                        </View>
+                      )}
+                    </View>
                   </View>
 
                   <View className="flex-row items-center mb-3">
