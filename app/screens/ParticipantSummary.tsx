@@ -6,11 +6,13 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomToast from "../components/CustomToast";
 import { useTrips } from "../context/TripsContext";
+// @ts-ignore
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type BalanceMap = Record<string, number>;
 
@@ -33,6 +35,52 @@ const ParticipantSummary = () => {
   // Settlement state - track which debts are settled/received
   const [settledDebts, setSettledDebts] = useState<Set<string>>(new Set());
   const [receivedDebts, setReceivedDebts] = useState<Set<string>>(new Set());
+
+  // Persistence keys
+  const storageKey = (suffix: string) =>
+    `travelsplit_participant_settlement_${selectedTrip?.id || "no_trip"}_$${
+      participantId || "no_participant"
+    }_${suffix}`;
+
+  // Load persisted local toggle state on mount/when trip or participant changes
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [settledStr, receivedStr] = await Promise.all([
+          AsyncStorage.getItem(storageKey("settled")),
+          AsyncStorage.getItem(storageKey("received")),
+        ]);
+        if (settledStr) setSettledDebts(new Set(JSON.parse(settledStr)));
+        else setSettledDebts(new Set());
+        if (receivedStr) setReceivedDebts(new Set(JSON.parse(receivedStr)));
+        else setReceivedDebts(new Set());
+      } catch (e) {
+        // ignore read errors; keep defaults
+      }
+    };
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTrip?.id, participantId]);
+
+  const persistState = async (
+    nextSettled: Set<string>,
+    nextReceived: Set<string>
+  ) => {
+    try {
+      await Promise.all([
+        AsyncStorage.setItem(
+          storageKey("settled"),
+          JSON.stringify(Array.from(nextSettled))
+        ),
+        AsyncStorage.setItem(
+          storageKey("received"),
+          JSON.stringify(Array.from(nextReceived))
+        ),
+      ]);
+    } catch (e) {
+      // ignore write errors silently
+    }
+  };
 
   const { participant, netBalance, owesTo, owedBy, unsettledExpenses } =
     useMemo(() => {
@@ -175,6 +223,8 @@ const ParticipantSummary = () => {
         setSettledDebts((prev) => {
           const newSet = new Set(prev);
           newSet.delete(debtKey);
+          // persist with current receivedDebts
+          persistState(newSet, receivedDebts);
           return newSet;
         });
         setToast({
@@ -184,7 +234,11 @@ const ParticipantSummary = () => {
         });
       } else {
         // Not settled, mark as settled
-        setSettledDebts((prev) => new Set([...prev, debtKey]));
+        setSettledDebts((prev) => {
+          const newSet = new Set([...prev, debtKey]);
+          persistState(newSet, receivedDebts);
+          return newSet;
+        });
         setToast({
           visible: true,
           message: `Settled ₹${debt.amount.toFixed(2)} with ${debt.name}`,
@@ -198,6 +252,8 @@ const ParticipantSummary = () => {
         setReceivedDebts((prev) => {
           const newSet = new Set(prev);
           newSet.delete(debtKey);
+          // persist with current settledDebts
+          persistState(settledDebts, newSet);
           return newSet;
         });
         setToast({
@@ -207,7 +263,11 @@ const ParticipantSummary = () => {
         });
       } else {
         // Not received, mark as received
-        setReceivedDebts((prev) => new Set([...prev, debtKey]));
+        setReceivedDebts((prev) => {
+          const newSet = new Set([...prev, debtKey]);
+          persistState(settledDebts, newSet);
+          return newSet;
+        });
         setToast({
           visible: true,
           message: `Received ₹${debt.amount.toFixed(2)} from ${debt.name}`,
