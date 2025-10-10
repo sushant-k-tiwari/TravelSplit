@@ -1,3 +1,9 @@
+import {
+  AlertCircleIcon,
+  CancelCircleIcon,
+  Tick04Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
 import React, { useEffect, useState } from "react";
 import {
   Animated,
@@ -82,16 +88,16 @@ const CustomToast: React.FC<CustomToastProps> = ({
     }
   };
 
-  const getIcon = () => {
+  const getIcon = (type: any) => {
     switch (type) {
       case "success":
-        return "✓";
+        return <HugeiconsIcon icon={Tick04Icon} color={"white"} />;
       case "error":
-        return "✕";
+        return <HugeiconsIcon icon={CancelCircleIcon} color={"white"} />;
       case "info":
-        return "ℹ";
+        return <HugeiconsIcon icon={AlertCircleIcon} color={"white"} />;
       default:
-        return "ℹ";
+        return <HugeiconsIcon icon={AlertCircleIcon} color={"white"} />;
     }
   };
 
@@ -111,16 +117,18 @@ const CustomToast: React.FC<CustomToastProps> = ({
     >
       <TouchableOpacity
         onPress={hideToast}
-        className={`${getToastStyle()} rounded-2xl p-4 flex-row items-center shadow-lg`}
+        className={`${getToastStyle()} rounded-xl p-4 flex-row items-center shadow-lg`}
       >
         <View className="bg-white/20 rounded-full p-2 mr-3">
-          <Text className="text-white text-lg font-bold size-6 text-center">{getIcon()}</Text>
+          <Text className="text-white text-lg font-bold size-6 text-center">
+            {getIcon(type)}
+          </Text>
         </View>
         <Text className="text-white font-semibold flex-1 text-base">
           {message}
         </Text>
         <TouchableOpacity onPress={hideToast} className="ml-2">
-          <Text className="text-white text-lg font-bold">×</Text>
+          <HugeiconsIcon icon={CancelCircleIcon} color={"white"} size={32} />
         </TouchableOpacity>
       </TouchableOpacity>
     </Animated.View>
