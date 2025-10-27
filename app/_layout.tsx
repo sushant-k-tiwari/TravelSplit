@@ -6,8 +6,9 @@ export default function RootLayout() {
     <TripsProvider>
       <Stack
         screenOptions={{ headerShown: false }}
-        initialRouteName="screens/Welcome"
+        initialRouteName="screens/Splash"
       >
+        <Stack.Screen name="screens/Splash" />
         <Stack.Screen name="screens/Welcome" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="screens/NewTrip" />
