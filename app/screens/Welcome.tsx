@@ -26,8 +26,12 @@ const Welcome = () => {
     const checkStoredName = async () => {
       try {
         const stored = await AsyncStorage.getItem("travelsplit_user_name");
-        if (stored && stored.trim().length > 0) {
-          router.replace("/(tabs)");
+        // Only skip if a real, non-default name exists
+        if (stored) {
+          const trimmed = stored.trim();
+          if (trimmed.length > 0 && trimmed !== "You") {
+            router.replace("/(tabs)");
+          }
         }
       } catch {
         // ignore and stay on screen

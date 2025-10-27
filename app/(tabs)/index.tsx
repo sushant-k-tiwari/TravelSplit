@@ -3,18 +3,22 @@ import {
   Edit02Icon,
   Invoice01Icon,
   UserGroup03Icon,
+  Delete02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { useRouter } from "expo-router";
+import * as Haptics from "expo-haptics";
 import LottieView from "lottie-react-native";
-import React from "react";
-import { Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { FlatList, Modal, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTrips } from "../context/TripsContext";
 
 const Trips = () => {
   const router = useRouter();
   const { trips, selectTrip, selectedTripId, deleteTrip } = useTrips();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [tripToDelete, setTripToDelete] = useState<{ id: string; name: string } | null>(null);
 
   return (
     <SafeAreaView className="flex-1 bg-gradient-to-b from-[#F8FFFE] to-white">
@@ -67,21 +71,7 @@ const Trips = () => {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   onPress={() => selectTrip(item.id)}
-                  onLongPress={() =>
-                    Alert.alert(
-                      "Delete trip?",
-                      `Are you sure you want to delete "${item.name}" and all its data (friends and expenses)? This cannot be undone.`,
-                      [
-                        { text: "Cancel", style: "cancel" },
-                        {
-                          text: "Delete",
-                          style: "destructive",
-                          onPress: () => deleteTrip(item.id),
-                        },
-                      ]
-                    )
-                  }
-                  className={`p-6 rounded-2xl mb-4 shadow-sm border-2 ${
+                  className={`relative p-6 rounded-2xl mb-4 shadow-sm border-2 ${
                     selectedTripId === item.id
                       ? "bg-[#CFF7DD] border-[#38E07B]"
                       : "bg-white border-[#E3F5EA]"
@@ -103,6 +93,7 @@ const Trips = () => {
                       <TouchableOpacity
                         onPress={(e) => {
                           e.stopPropagation();
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                           router.push({
                             pathname: "/screens/NewTrip",
                             params: { editTripId: item.id },
@@ -114,6 +105,21 @@ const Trips = () => {
                           icon={Edit02Icon}
                           color={"white"}
                           size={20}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                          setTripToDelete({ id: item.id, name: item.name });
+                          setShowDeleteModal(true);
+                        }}
+                        className="bg-red-500 rounded-full p-2 mr-2"
+                      >
+                        <HugeiconsIcon
+                          icon={Delete02Icon}
+                          color={"white"}
+                          size={18}
                         />
                       </TouchableOpacity>
                       {selectedTripId === item.id && (
@@ -158,6 +164,55 @@ const Trips = () => {
                 + Create New Trip
               </Text>
             </TouchableOpacity>
+
+            {/* Delete trip confirmation modal */}
+            <Modal
+              visible={showDeleteModal}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setShowDeleteModal(false)}
+            >
+              <View className="flex-1 bg-black/50 justify-center items-center px-6">
+                <View className="bg-white rounded-2xl p-6 w-full max-w-sm">
+                  <Text className="text-4xl text-center mb-4">⚠️</Text>
+                  <Text className="text-xl font-bold text-slate-800 text-center mb-2">
+                    Delete Trip?
+                  </Text>
+                  <Text className="text-slate-600 text-center mb-6 leading-5">
+                    This will permanently delete &quot;{tripToDelete?.name}&quot; and all its friends and expenses. This action cannot be undone.
+                  </Text>
+
+                  <View className="space-y-3 gap-2">
+                    <TouchableOpacity
+                      onPress={async () => {
+                        if (tripToDelete) {
+                          await Haptics.notificationAsync(
+                            Haptics.NotificationFeedbackType.Success
+                          );
+                          deleteTrip(tripToDelete.id);
+                        }
+                        setShowDeleteModal(false);
+                        setTripToDelete(null);
+                      }}
+                      className="bg-red-500 rounded-xl p-4"
+                    >
+                      <Text className="text-white font-bold text-center text-lg">
+                        Yes, Delete Trip
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => setShowDeleteModal(false)}
+                      className="bg-gray-200 rounded-xl p-4"
+                    >
+                      <Text className="text-slate-700 font-semibold text-center text-lg">
+                        Cancel
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
           </>
         )}
       </View>
